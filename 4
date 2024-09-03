@@ -1,0 +1,225 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node {
+int data;
+struct node* link;
+} NODE;
+typedef struct {
+int count;
+NODE* head;
+} LIST;
+NODE* createNode(int val) {
+NODE* n = (NODE*)malloc(sizeof(NODE));
+if (n == NULL) {
+printf("Memory allocation failed\n");
+return NULL;
+}
+n->data = val;
+n->link = NULL;
+return n;
+}
+void display(LIST* list) {
+if (list->head == NULL) {
+printf("\nThe list is empty\n");
+return;
+}
+NODE* current = list->head;
+printf("List elements: ");
+do {
+printf("%d -> ", current->data);
+current = current->link;
+} while (current != list->head);
+}
+NODE* ins_front(LIST* list, int val) {
+NODE* n = createNode(val);
+if (list->head == NULL) {
+list->head = n;
+n->link = n; // Point to itself in a circular list
+} else {
+NODE* temp = list->head;
+while (temp->link != list->head) {
+temp = temp->link;
+}
+n->link = list->head;
+list->head = n;
+temp->link = n;
+}
+list->count++;
+return n;
+}
+void create_ordered(LIST *list, int value)
+{
+NODE *n = createNode(value);
+NODE *cur = list->head;
+if (list->head == NULL ||value <= list->head->data)
+{
+list->head=ins_front(list,value);
+}
+else
+{
+NODE *temp = list->head;
+NODE *prev = NULL;
+do
+{
+prev = temp;
+temp = temp->link;
+} while (temp != list->head && temp->data < value);
+n->link = temp;
+prev->link = n;
+list->count++;
+}
+printf("\nOrdered Circular Linked List: \n");
+display(list);
+}
+NODE* delete_position(LIST* list, int position) {
+if (list->head == NULL || position < 1 || position > list->count) {
+printf("\nInvalid position or empty list\n");
+return NULL;
+}
+NODE* current = list->head;
+NODE* previous = NULL;
+if (position == 1) {
+NODE* last = list->head;
+while (last->link != list->head) {
+last = last->link;
+}
+if (last == list->head) {
+printf("\n deleted element=%d\n", current->data);
+free(current);
+list->head = NULL;
+return list->head;
+}
+list->head = current->link;
+last->link = list->head;
+printf("\n deleted element=%d\n", current->data);
+free(current);
+} else {
+for (int i = 1; i < position; i++) {
+previous = current;
+current = current->link;
+}
+previous->link = current->link;
+printf("\n deleted element=%d\n", current->data);
+free(current);
+}
+return list->head;
+}
+NODE* searchByKey(LIST* list, int key)
+{
+if (list->head == NULL)
+{
+printf("\nThe list is empty\n");
+return NULL;
+}
+NODE* current = list->head;
+do {
+if (current->data == key)
+{
+printf("\nNode with key %d found\n", key);
+return current;
+}
+current = current->link;
+} while (current != list->head);
+printf("\nNode with key %d not found\n", key);
+return NULL;
+}
+NODE* deleteByKey(LIST* list, int key)
+{
+if (list->head == NULL)
+{
+printf("\nThe list is empty\n");
+return NULL;
+}
+NODE* current = list->head;
+NODE* previous = NULL;
+do {
+if (current->data == key)
+{
+if (previous == NULL)
+{
+if (current->link == list->head)
+{
+free(current);
+list->head = NULL;
+list->count = 0;
+return NULL;
+}
+else
+{
+NODE* last = list->head;
+while (last->link != list->head) {
+last = last->link;
+}
+list->head = current->link;
+last->link = list->head;
+}
+}
+else
+{
+previous->link = current->link;
+}
+free(current);
+list->count--;
+printf("\nNode with key %d deleted\n", key);
+return list->head;
+}
+previous = current;
+current = current->link;
+} while (current != list->head);
+printf("\nNode with key %d not found\n", key);
+return list->head;
+}
+int main() {
+int ch, val, position,key;
+LIST* list = (LIST*)malloc(sizeof(LIST));
+list->count = 0;
+list->head = NULL;
+LIST *p= (LIST *)malloc(sizeof(LIST));
+p->head=NULL;
+p->count=0;
+NODE* n;
+for (;;) {
+printf("\n1.create_ordered\n2.delete_position\n3.searchByKey\n4.deleteByKey\n5.display\
+6.exit\n");
+printf("Enter your choice: ");
+scanf("%d", &ch);
+switch (ch) {
+case 1:
+printf("Creating ordered list...\n");
+for (;;) {
+printf("\nEnter -1 to stop or Enter value to continue: ");
+scanf("%d", &val);
+if (val == -1)
+{
+break ;
+}
+create_ordered(list,val);
+}
+break;
+case 2: printf("\nEnter the position to delete: ");
+scanf("%d", &position);
+n = delete_position(list, position);
+break;
+case 3:printf("\nEnter the key to search: ");
+scanf("%d", &key);
+NODE* result = searchByKey(list, key);
+if (result != NULL)
+{
+printf("Node data: %d\n", result->data);
+}
+break;
+case 4:printf("Enter key to delete: ");
+scanf("%d", &key);
+list->head = deleteByKey(list, key);
+break;
+case 5:display(list);
+break;
+case 6:printf("\nProgram exited\n");
+free(list);
+return 0;
+default:
+printf("\nInvalid Choice\n");
+}
+}
+return 0;
+}
