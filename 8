@@ -1,0 +1,175 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct node {
+int data;
+struct node* link;
+} NODE;
+typedef struct {
+int count;
+NODE* head;
+} LIST;
+NODE* createNode(int val) {
+NODE* n = (NODE*)malloc(sizeof(NODE));
+if (n == NULL) {
+printf("Memory allocation failed\n");
+return NULL;
+}
+n->data = val;
+n->link = NULL;
+return n;
+}
+void display(LIST* list) {
+if (list->head == NULL) {
+printf("\nThe list is empty\n");
+return;
+}
+NODE* current = list->head;
+printf("List elements: ");
+do {
+printf("%d -> ", current->data);
+current = current->link;
+} while (current != list->head);
+}
+NODE* insert_position(LIST* list, int position, int val) {
+if (position < 1 || (position > list->count + 1)) {
+printf("\nInvalid position\n");
+return NULL;
+}
+NODE* n = createNode(val);
+list->count++;
+if (position == 1) {
+if (list->head == NULL) {
+list->head = n;
+n->link = n; // Point to itself in a circular list
+} else {
+NODE* temp = list->head;
+while (temp->link != list->head) {
+temp = temp->link;
+}
+temp->link = n;
+n->link = list->head;
+list->head = n;
+}
+} else {
+NODE* temp = list->head;
+for (int i = 1; i < position - 1; i++) {
+temp = temp->link;
+}
+n->link = temp->link;
+temp->link = n;
+}
+return n;
+}
+NODE* delete_front(LIST* list) {
+if (list->head == NULL) {
+printf("\nThe list is empty\n");
+return NULL;
+}
+NODE* temp = list->head;
+if (list->count == 1) {
+printf("\n deleted element=%d\n", temp->data);
+free(temp);
+list->head = NULL;
+} else {
+NODE* last = list->head;
+while (last->link != list->head)
+last = last->link;
+list->head = list->head->link;
+last->link = list->head;
+printf("\n deleted element=%d\n", temp->data);
+free(temp);
+}
+list->count--;
+return list->head;
+}
+NODE* delete_rear(LIST* list) {
+if (list->head == NULL) {
+printf("\nThe list is empty\n");
+return NULL;
+}
+NODE* current = list->head;
+NODE* previous = NULL;
+while (current->link != list->head) {
+previous = current;
+current = current->link;
+}
+if (previous != NULL) {
+previous->link = list->head; // Update the second-to-last node to point to the head
+} else {
+list->head = NULL; // If only one node is present
+}
+printf("\n deleted element=%d\n", current->data);
+free(current);
+list->count--;
+return list->head;
+}
+NODE* searchByKey(LIST* list, int key)
+{
+if (list->head == NULL)
+{
+// The list is empty, so there is nothing to search
+printf("\nThe list is empty\n");
+return NULL;
+}
+NODE* current = list->head;
+do {
+if (current->data == key)
+{
+// Node with the key found, return the pointer to the node
+printf("\nNode with key %d found\n", key);
+return current;
+}
+// Move to the next node
+current = current->link;
+} while (current != list->head);
+// If the key is not found in the list
+printf("\nNode with key %d not found\n", key);
+return NULL;
+}
+int main() {
+int ch, val, position,key;
+LIST* list = (LIST*)malloc(sizeof(LIST));
+list->count = 0;
+list->head = NULL;
+LIST *p= (LIST *)malloc(sizeof(LIST));
+p->head=NULL;
+p->count=0;
+NODE* n;
+for (;;) {
+printf("\n1.insert_position\n2.delete_front\n3.delete_front\n4.searchByKey\n5.display\n6.exit\n");
+printf("Enter your choice: ");
+scanf("%d", &ch);
+switch (ch) {
+case 1:
+printf("\nEnter the position to insert: ");
+scanf("%d", &position);
+printf("Enter value to insert at position: ");
+scanf("%d", &val);
+n = insert_position(list, position, val);
+break;
+case 2:
+list->head = delete_front(list);
+break;
+case 3:
+delete_rear(list);
+break;
+case 4: printf("\nEnter the key to search: ");
+scanf("%d", &key);
+NODE* result = searchByKey(list, key);
+if (result != NULL)
+{
+printf("Node data: %d\n", result->data);
+}
+break;
+case 5:
+display(list);
+break;
+case 6:printf("exiting program:");
+free(list);
+return 0;
+defualt:
+printf("\ninvalid choice\n");
+}
+}
+return 0;
+}
