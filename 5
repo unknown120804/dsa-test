@@ -1,0 +1,246 @@
+#include <stdio.h>
+#include <stdlib.h>
+typedef struct Node {
+   int data;
+   struct Node *prev;
+   struct Node *next;
+} NODE;
+typedef struct CircularDoublyLinkedList {
+   NODE *head;
+   int count;
+} LIST;
+void displayList(LIST *list) {
+   if (list->count == 0) {
+       printf("List is empty\n");
+       return;
+   }
+NODE *temp = list->head;
+   do {
+       printf("%d <-> ", temp->data);
+       temp = temp->next;
+   } while (temp != list->head);
+   printf("(head)\n");
+}
+int insertFront(LIST *list, int value) {
+   NODE *newNode = (NODE *)malloc(sizeof(NODE));
+   newNode->data = value;
+ 
+   if (list->count == 0) {
+       newNode->prev = newNode;
+       newNode->next = newNode;
+       list->head = newNode;
+   } else {
+       NODE *last = list->head->prev;
+       newNode->prev = last;
+       newNode->next = list->head;
+       list->head->prev = newNode;
+       last->next = newNode;
+       list->head = newNode;
+   }   list->count++;
+   
+}
+void insertRear(LIST *list, int value) {
+   NODE *newNode = (NODE *)malloc(sizeof(NODE));
+   newNode->data = value;
+ 
+   if (list->count == 0) {
+       newNode->prev = newNode;
+       newNode->next = newNode;
+       list->head = newNode;
+   } else {
+       NODE *last = list->head->prev;
+       newNode->prev = last;
+       newNode->next = list->head;
+       list->head->prev = newNode;
+       last->next = newNode;
+   }  list->count++;
+}
+
+void createOrderedList(LIST *list, int value) {
+   NODE *newNode = (NODE *)malloc(sizeof(NODE));
+   newNode->data = value;
+ 
+   if (list->count == 0 || value <= list->head->data) {
+       insertFront(list, value);
+       return;
+   }
+ 
+   NODE *temp = list->head;
+   do {
+       if (value <= temp->data) {
+           newNode->prev = temp->prev;
+           newNode->next = temp;
+           temp->prev->next = newNode;
+           temp->prev = newNode;
+ 
+           list->count++;
+           return;
+       }
+       temp = temp->next;
+   } while (temp != list->head);
+ 
+   insertRear(list, value);
+}
+void deleteFront(LIST *list) {
+   if (list->count == 0) {
+       printf("List is empty\n");
+       return;
+   }
+ 
+   if (list->count == 1) {
+       free(list->head);
+       list->head = NULL;
+   } else {
+       NODE *second = list->head->next;
+       NODE *last = list->head->prev;
+       second->prev = last;
+       last->next = second;
+       free(list->head);
+       list->head = second;
+   }
+ 
+   list->count--;
+}
+ 
+void deleteRear(LIST *list) {
+   if (list->count == 0) {
+       printf("List is empty\n");
+       return;
+   }
+ 
+   if (list->count == 1) {
+       free(list->head);
+       list->head = NULL;
+   } else {
+       NODE *last = list->head->prev;
+       NODE *secondLast = last->prev;
+       secondLast->next = list->head;
+       list->head->prev = secondLast;
+       free(last);
+   }
+ 
+   list->count--;
+}
+void deleteAtPosition(LIST *list, int position) {
+   if (list->count == 0) {
+       printf("List is empty\n");
+       return;
+   }
+ 
+   if (position < 1 || position > list->count) {
+       printf("Invalid position\n");
+       return;
+   }
+ 
+   if (position == 1) {
+       deleteFront(list);
+   } else if (position == list->count) {
+       deleteRear(list);
+   } else {
+       NODE *temp = list->head;
+       for (int i = 1; i < position; i++) {
+           temp = temp->next;
+       }
+ 
+       temp->prev->next = temp->next;
+       temp->next->prev = temp->prev;
+       free(temp);
+ 
+       list->count--;
+   }
+}
+ 
+void deleteByKey(LIST *list, int key) {
+   if (list->count == 0) {
+       printf("List is empty\n");
+       return;
+   }
+ 
+   NODE *temp = list->head;
+   do {
+       if (temp->data == key) {
+           temp->prev->next = temp->next;
+           temp->next->prev = temp->prev;
+           free(temp);
+ 
+           list->count--;
+           printf("Node with key %d deleted\n", key);
+           return;
+       }
+       temp = temp->next;
+   } while (temp != list->head);
+ 
+   printf("Node with key %d not found\n", key);
+}
+void serbypos(LIST*list,int position)
+{
+NODE*temp=list->head;
+if(list->head==NULL)
+{
+printf("list is empty\n");
+return ;
+}
+if(position<1||position>list->count)
+{
+printf("invalid position:");
+return ;
+}
+for(int i=1;i<position;i++)
+temp=temp->next;
+printf("searched element is :%d",temp->data);
+}
+int main() {
+   LIST *list = (LIST *)malloc(sizeof(LIST));
+   list->head = NULL;
+   list->count = 0;
+ 
+   int choice, value, position, key;
+ 
+   do {
+       printf("\nCircular Doubly Linked List Operations:\n");
+       printf("1. Create Ordered List\n");
+        printf("2. Delete at Position\n");
+       printf("3. Delete by Key\n");
+       printf("4.serach by position\n");
+        printf("5. display\n");
+        printf("6.exit\n");
+       printf("Enter your choice: ");
+       scanf("%d", &choice);
+ 
+       switch (choice) {
+            case 1:
+               printf("Enter the value to insert in ordered list: ");
+               scanf("%d", &value);
+               createOrderedList(list, value);
+               break;
+            case 2:printf("Enter the position to delete: ");
+               scanf("%d", &position);
+               deleteAtPosition(list, position);
+               printf("Node deleted from position %d\n", position);
+               break;
+ 
+           case 3:
+               printf("Enter the key to delete: ");
+               scanf("%d", &key);
+               deleteByKey(list, key);
+               break;
+          case 4:printf("enter pos to be serached:");
+               scanf("%d",&position);
+              serbypos(list,position);
+               break;
+            case 5: displayList(list);
+               break;
+            case 6:printf("Exiting the program\n");
+               break;
+ 
+           default:
+               printf("Invalid choice\n");
+       }
+ 
+   } while (choice != 6);
+ 
+   free(list); 
+ 
+   return 0;
+}
+ 
