@@ -1,0 +1,203 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+typedef struct node {
+    int data;
+    struct node* link;
+} NODE;
+
+typedef struct {
+    int count;
+    NODE* head;
+} LIST;
+
+NODE* createNode(int val) {
+    NODE* n = (NODE*)malloc(sizeof(NODE));
+    if (n == NULL) {
+        printf("Memory allocation failed\n");
+        return NULL;
+    }
+    n->data = val;
+    n->link = NULL;
+    return n;
+}
+void display(LIST* list) {
+    if (list->head == NULL) {
+        printf("\nThe list is empty\n");
+        return;
+    }
+
+    NODE* current = list->head;
+
+    printf("List elements: ");
+    do {
+        printf("%d -> ", current->data);
+        current = current->link;
+    } while (current != list->head);
+    
+}
+
+NODE* insert_end(LIST* list, int val) {
+    NODE* n = createNode(val);
+
+    if (list->head == NULL) {
+        list->head = n;
+        n->link = n; // Point to itself in a circular list
+    } else {
+        NODE* temp = list->head;
+        while (temp->link != list->head) {
+            temp = temp->link;
+        }
+        temp->link = n;
+        n->link = list->head;
+    }
+    list->count++;
+    return n;
+}
+
+NODE* ins_front(LIST* list, int val) {
+    NODE* n = createNode(val);
+
+    if (list->head == NULL) {
+        list->head = n;
+        n->link = n; // Point to itself in a circular list
+    } else {
+        NODE* temp = list->head;
+        while (temp->link != list->head) {
+            temp = temp->link;
+        }
+        n->link = list->head;
+        list->head = n;
+        temp->link = n;
+    }
+    list->count++;
+    return n;
+}
+NODE* deleteByKey(LIST* list, int key) 
+{
+    if (list->head == NULL) 
+    {
+        printf("\nThe list is empty\n");
+        return NULL;
+    }
+
+    NODE* current = list->head;
+    NODE* previous = NULL;
+
+    
+    do {
+        if (current->data == key) 
+         {
+            // Node with the key found, delete it
+            if (previous == NULL) 
+             {
+                // If the node to be deleted is the head
+                if (current->link == list->head)
+                {
+                    // If it's the only node in the list
+                    free(current);
+                    list->head = NULL;
+                    list->count = 0;
+                    return NULL;
+                } 
+                else 
+                {
+                    // Update head and link last node to the new head
+                    NODE* last = list->head;
+                    while (last->link != list->head) {
+                        last = last->link;
+                    }
+                    list->head = current->link;
+                    last->link = list->head;
+                }
+            } 
+            else 
+            {
+                previous->link = current->link;
+            }
+
+            free(current);
+            list->count--;
+
+            printf("\nNode with key %d deleted\n", key);
+
+            return list->head;
+        }
+
+        // Move to the next node
+        previous = current;
+        current = current->link;
+
+    } while (current != list->head);
+
+    // If the key is not found in the list
+    printf("\nNode with key %d not found\n", key);
+
+    return list->head;
+}
+NODE*serbypos(LIST*list,int pos)
+{   
+    NODE*temp=list->head;
+    if(list->head==NULL)
+    {
+        printf("list is empty\n");
+        return NULL;
+    }
+    if(pos<1||pos>list->count)
+    {
+        printf("invalid position:");
+        return NULL;
+    }
+    for(int i=1;i<pos;i++)
+    temp=temp->link;
+    printf("searched element is :%d",temp->data);
+}
+int main() {
+    int ch, val, pos,key;
+    LIST* list = (LIST*)malloc(sizeof(LIST));
+    list->count = 0;
+    list->head = NULL;
+    
+    LIST *p= (LIST *)malloc(sizeof(LIST));
+    p->head=NULL;
+    p->count=0;
+    NODE* n;
+
+    for (;;) {
+        printf("\n1. Insert front\n2. insert_end\n3. Delete by key\n4.serachbypos\n5.display\n6.Exit\n");
+        printf("Enter your choice: ");
+        scanf("%d", &ch);
+
+        switch (ch) {
+            case 1:
+                printf("Enter value to insert at front: ");
+                scanf("%d", &val);
+                list->head = ins_front(list, val);
+                break;
+            case 2:
+                printf("Enter value to insert at end: ");
+                scanf("%d", &val);
+                n = insert_end(list, val);
+                break;
+            case 3:printf("Enter key to delete: ");
+                scanf("%d", &key);
+                list->head = deleteByKey(list, key);
+                break;
+            case 4:printf("enter pos to be serached:");
+            scanf("%d",&pos);
+            n=serbypos(list,pos);
+            break;
+            case 5:display(list);
+                break;
+            case 6:printf("\nProgram exited\n");
+                free(list);
+                return 0;
+            default:
+                printf("\nInvalid Choice\n");
+        }
+    }
+
+    return 0;
+}
+
+
