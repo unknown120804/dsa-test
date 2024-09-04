@@ -120,34 +120,6 @@ void deleteRear(LIST *list) {
  
    list->count--;
 }
-void deleteAtPosition(LIST *list, int position) {
-   if (list->count == 0) {
-       printf("List is empty\n");
-       return;
-   }
- 
-   if (position < 1 || position > list->count) {
-       printf("Invalid position\n");
-       return;
-   }
- 
-   if (position == 1) {
-       deleteFront(list);
-   } else if (position == list->count) {
-       deleteRear(list);
-   } else {
-       NODE *temp = list->head;
-       for (int i = 1; i < position; i++) {
-           temp = temp->next;
-       }
- 
-       temp->prev->next = temp->next;
-       temp->next->prev = temp->prev;
-       free(temp);
- 
-       list->count--;
-   }
-}
 void serbypos(LIST*list,int position)
 {
 NODE*temp=list->head;
